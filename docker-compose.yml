@@ -1,0 +1,44 @@
+version: '3'
+
+services:  
+  nats-server:
+    image: nats:latest
+    ports:
+      - "8222:8222"
+    
+  client-gateway:
+    build: ./TDB-Client-Gateway
+    ports:
+      - ${CLIENT_GATEWAY_PORT}:3000
+    volumes:
+      - ./TDB-Client-Gateway/src:/usr/src/app/src
+    command: yarn run start:dev
+    environment:
+      - PORT=3000
+      - NATS_SERVERS=nats://nats-server:4222
+
+  auth-ms:
+    build: ./TDB-aut-microservice
+    volumes:
+      - ./TDB-aut-microservice/src:/usr/src/app/src
+    command: yarn run start:docker
+    environment:
+      - PORT=3004
+      - NATS_SERVERS=nats://nats-server:4222
+      - DATABASE_URL=${AUTH_DATABASE_URL}
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - auth_mongo_database
+
+  auth_mongo_database:
+    image: mongo:6.0
+    container_name: auth_mongo_database
+    restart: always
+    ports:
+      - '27017:27017'
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root123    
+      MONGO_INITDB_DATABASE: authDB
+    expose:
+      - '27017'
