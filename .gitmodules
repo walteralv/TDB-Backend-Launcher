@@ -1,0 +1,6 @@
+[submodule "api-gateway"]
+	path = api-gateway
+	url = git@github.com:walteralv/TDB-Client-Gateway.git
+[submodule "auth-ms"]
+	path = auth-ms
+	url = git@github.com:walteralv/TDB-aut-microservice.git
